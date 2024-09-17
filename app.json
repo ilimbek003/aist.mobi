@@ -1,36 +1,17 @@
 {
   "expo": {
-    "name": "aist.mobi",
-    "slug": "aist.mobi",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
-    "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+    "name": "Aist Mobi",
+    "slug": "aist-mobi",
+    "icon": "./assets/applogo.png",
+    "extra": {
+      "eas": {
+        "projectId": "b85ffae2-dc93-4e0c-8534-3637422e046d"
       }
     },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+    "android": {
+      "icon": "./assets/aistlogo.png",
+      "package": "com.ilimbek.aistmobi"
     },
-    "plugins": [
-      "expo-router"
-    ],
-    "experiments": {
-      "typedRoutes": true
-    }
+    "plugins": ["expo-secure-store"]
   }
 }
