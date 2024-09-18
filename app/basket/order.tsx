@@ -25,6 +25,9 @@ const OrderPlacement = () => {
   const [checkedmap, setCheckedmap] = useState<boolean>(false);
   const [activeInstallment, setActiveInstallment] = useState<number>(0);
   const [cash, setCash] = useState<boolean>(false);
+  const addressId = useSelector(
+    (state: RootState) => state.selectedAddress.selectedId
+  );
   const selectedAddressId = useSelector(
     (state: RootState) => state.selectedAddress.selectedAddress
   );
@@ -39,7 +42,7 @@ const OrderPlacement = () => {
       })),
       first_name: "string",
       last_name: "string",
-      address: 12,
+      address: addressId,
     };
     if (checkedmap) {
       orderData.by_bank_card = true;
