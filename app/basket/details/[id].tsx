@@ -1,7 +1,7 @@
 import { RootState } from "@/components/redux/store";
 import { getToken } from "@/components/SecureStore/SecureStore";
 import axios from "axios";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -27,38 +27,30 @@ interface BasketItem {
 }
 
 interface OrderItem {
-  basket_items: BasketItem[];
+  address: BasketItem[];
   order_id: number;
-  address: {
-    address: string;
-  };
   last_name: string;
   first_name: string;
   user_phone: string;
   created_at: string;
   status_order: string;
   id: number;
+  preview_img: string;
 }
 
 const OrderDetails = () => {
-  const id = useSelector((state: RootState) => state.setidAddress.order_id);
-  const basket_id = useSelector(
-    (state: RootState) => state.setidAddress.basket_id
-  );
+  const { id } = useLocalSearchParams<{ id: string }>();
   const [data, setData] = useState<OrderItem | null>(null);
 
   useEffect(() => {
     const fetchToken = async () => {
       const token = await getToken();
       axios
-        .get<OrderItem>(
-          `https://aist.mobi/order/order/${id}/basket_item/${basket_id}/`,
-          {
-            headers: {
-              Authorization: `Token ${token}`,
-            },
-          }
-        )
+        .get<OrderItem>(`https://aist.mobi/order/${id}/`, {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        })
         .then((response) => {
           setData(response.data);
         })
@@ -70,17 +62,14 @@ const OrderDetails = () => {
     fetchToken();
   }, []);
 
-  const handleId = async (orderId: number, basketId: number) => {
+  const handleId = async (orderId: number) => {
     try {
       const token = await getToken();
-      const response = await axios.delete(
-        `https://aist.mobi/order/${orderId}/basket_item/${basketId}/`,
-        {
-          headers: {
-            Authorization: `Token ${token}`,
-          },
-        }
-      );
+      await axios.delete(`https://aist.mobi/order/${orderId}/`, {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      });
       Alert.alert("Успех", "Заказ успешно отменен");
       router.push("/profile/orders");
     } catch (error) {
@@ -103,74 +92,65 @@ const OrderDetails = () => {
         </Text>
         <View style={styles.arrowIcon} />
       </View>
-      <View style={styles.blocks}>
+      {data && (
         <View style={styles.blocks}>
-          <View>
-            {data &&
-              data.basket_items.map((item) => (
-                <View key={item.id}>
-                  <View style={styles.containers}>
-                    <View style={styles.block_item}>
-                      <Image
-                        source={{ uri: item.preview_img }}
-                        style={styles.img}
-                      />
-                      <View style={styles.block}>
-                        <Text style={styles.text}>{item.title}</Text>
-                        <Text style={styles.count}>{item.count} шт</Text>
-                        <View style={styles.priceBlock}>
-                          <Text style={styles.price}>{item.price} с</Text>
-                          <View style={styles.status}>
-                            <Image
-                              style={styles.clock}
-                              source={require("../../../assets/images/Clock.png")}
-                            />
-                            <Text>{data.status_order}</Text>
-                          </View>
-                        </View>
-                      </View>
-                    </View>
+          <View style={styles.containers}>
+            <View style={styles.block_item}>
+              <Image source={{ uri: data.preview_img }} style={styles.img} />
+              <View style={styles.block}>
+                <Text style={styles.text}>{data.title}</Text>
+                <Text style={styles.count}>{data.count} шт</Text>
+                <View style={styles.priceBlock}>
+                  <Text style={styles.price}>{data.price} с</Text>
+                  <View style={styles.status}>
+                    <Image
+                      style={styles.clock}
+                      source={require("../../../assets/images/Clock.png")}
+                    />
+                    <Text>{data.status_order}</Text>
                   </View>
                 </View>
-              ))}
+              </View>
+            </View>
           </View>
           <View>
             <View style={styles.flex}>
               <Text style={styles.order}>Номер заказа:</Text>
-              <Text style={styles.order_id}>{data?.order_id}</Text>
+              <Text style={styles.order_id}>{data.id_order}</Text>
             </View>
             <View style={styles.flex}>
               <Text style={styles.order}>Адрес доставки:</Text>
-              <Text style={styles.order_id}>{data?.address.address}</Text>
+              <Text style={styles.order_id}>
+                {data.address.region}, {data.address.address}
+              </Text>
+              <Text style={styles.order_id}>
+                Квартира: {data.address.apparment}
+              </Text>
             </View>
             <View style={styles.flex}>
               <Text style={styles.order}>Способ оплаты:</Text>
-              <Text style={styles.order_id}>
-                {data?.basket_items[0].payment_method}
-              </Text>
+              <Text style={styles.order_id}>{data.payment_method}</Text>
             </View>
             <View style={styles.flex}>
               <Text style={styles.order}>Получатель:</Text>
               <Text style={styles.order_id}>
-                {data?.last_name} {data?.first_name}
+                {data.last_name} {data.first_name}
               </Text>
-              <Text style={styles.order_id}>{data?.user_phone}</Text>
+              <Text style={styles.order_id}>{data.user_phone}</Text>
             </View>
             <View style={styles.flex}>
               <Text style={styles.order}>Дата оформления заказа:</Text>
-              <Text style={styles.order_id}>{data?.created_at}</Text>
+              <Text style={styles.order_id}>{data.created_at}</Text>
             </View>
           </View>
-        </View>
-        <View style={styles.blocks}>
           <TouchableOpacity
-            onPress={() => data && handleId(data.id, data.basket_items[0].id)}
             style={styles.button}
+            onPress={() => handleId(data.id)}
           >
             <Text style={styles.text_details}>Отменить заказ</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      )}
     </View>
   );
 };

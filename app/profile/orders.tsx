@@ -1,4 +1,3 @@
-import { setidAddress } from "@/components/redux/cart/orderId";
 import { getToken } from "@/components/SecureStore/SecureStore";
 import axios from "axios";
 import { router } from "expo-router";
@@ -11,7 +10,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useDispatch } from "react-redux";
 
 interface OrderItem {
   id: number;
@@ -25,10 +23,7 @@ interface OrderItem {
 }
 
 const MyOrders: React.FC = () => {
-  const dispatch = useDispatch();
   const [data, setData] = useState<OrderItem[]>([]);
-
-  console.log(data);
 
   useEffect(() => {
     const handleOrder = async () => {
@@ -50,11 +45,6 @@ const MyOrders: React.FC = () => {
     };
     handleOrder();
   }, []);
-
-  const handleId = (order_id: number, basket_id: number) => {
-    router.push(`basket/details/${order_id}`);
-    dispatch(setidAddress({ order_id, basket_id }));
-  };
 
   return (
     <View style={styles.container}>
@@ -105,7 +95,7 @@ const MyOrders: React.FC = () => {
                 </View>
               </View>
               <TouchableOpacity
-                onPress={() => handleId(item.id, item.id)}
+                onPress={() => router.push(`basket/details/${item.id}`)}
                 style={styles.button}
               >
                 <Text style={styles.text_details}>Посмотреть детали</Text>
